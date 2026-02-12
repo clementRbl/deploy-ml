@@ -1,0 +1,79 @@
+{
+  "energy_model": {
+    "file": "energy_model.joblib",
+    "target": "SiteEnergyUse(kBtu)",
+    "target_unit": "kBtu",
+    "target_transform": "log1p",
+    "inverse_transform": "expm1",
+    "algorithm": "Random Forest (Optimisé)",
+    "r2_cv": 0.7288,
+    "numeric_features": [
+      "NumberofBuildings",
+      "NumberofFloors",
+      "PropertyGFATotal",
+      "PropertyGFAParking",
+      "PropertyGFABuilding(s)",
+      "LargestPropertyUseTypeGFA",
+      "SecondLargestPropertyUseTypeGFA",
+      "ThirdLargestPropertyUseTypeGFA",
+      "BuildingAge",
+      "HasMultipleBuildings",
+      "FloorsPerBuilding",
+      "HasSecondaryUse",
+      "DistanceToCenter",
+      "HasElectricity",
+      "HasNaturalGas",
+      "HasSteam",
+      "SurfaceGasInteraction"
+    ],
+    "categorical_features": [
+      "BuildingType",
+      "PrimaryPropertyType",
+      "LargestPropertyUseType",
+      "SecondLargestPropertyUseType",
+      "ThirdLargestPropertyUseType"
+    ]
+  },
+  "co2_model": {
+    "file": "co2_model.joblib",
+    "target": "TotalGHGEmissions",
+    "target_unit": "Metric Tons CO2",
+    "target_transform": "log1p",
+    "inverse_transform": "expm1",
+    "algorithm": "LightGBM (Optimisé)",
+    "r2_cv": 0.9218,
+    "numeric_features": [
+      "NumberofBuildings",
+      "NumberofFloors",
+      "PropertyGFATotal",
+      "PropertyGFAParking",
+      "PropertyGFABuilding(s)",
+      "LargestPropertyUseTypeGFA",
+      "SecondLargestPropertyUseTypeGFA",
+      "ThirdLargestPropertyUseTypeGFA",
+      "SiteEnergyUse(kBtu)",
+      "BuildingAge",
+      "HasMultipleBuildings",
+      "FloorsPerBuilding",
+      "HasSecondaryUse",
+      "DistanceToCenter",
+      "HasElectricity",
+      "HasNaturalGas",
+      "HasSteam",
+      "SurfaceGasInteraction",
+      "EnergyPerSurface"
+    ],
+    "categorical_features": [
+      "BuildingType",
+      "PrimaryPropertyType",
+      "LargestPropertyUseType",
+      "SecondLargestPropertyUseType",
+      "ThirdLargestPropertyUseType"
+    ]
+  },
+  "export_info": {
+    "source_notebook": "P3_template_modelistation_supervisee_data_scientist.ipynb",
+    "dataset": "2016_Building_Energy_Benchmarking.csv",
+    "n_samples_trained": 1649
+  }
+}
