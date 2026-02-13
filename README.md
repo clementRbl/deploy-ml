@@ -1,3 +1,13 @@
+---
+title: Deploy ML - Energy & CO2 Prediction
+emoji: 🏢
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🏢 Deploy ML - Prédiction Énergétique et CO2 des Bâtiments
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
