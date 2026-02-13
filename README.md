@@ -36,6 +36,13 @@ Ce projet déploie deux modèles de Machine Learning entraînés sur le dataset 
 - ✅ **Tests** : couverture Pytest + tests fonctionnels
 - ✅ **CI/CD** : GitHub Actions + déploiement Hugging Face Spaces
 
+### 📦 Gestion des modèles ML
+
+Les modèles ML (fichiers `.joblib`) sont gérés avec **Git LFS** (Large File Storage) :
+- **Taille totale** : ~3.7 MB (energy_model.joblib + co2_model.joblib)
+- **Avantage** : Clone rapide du repository (téléchargement optimisé des fichiers binaires)
+- **Requis** : Git LFS doit être installé sur votre machine (voir [Installation](#-installation))
+
 ## 🏗️ Architecture
 
 ```
@@ -55,11 +62,21 @@ Ce projet déploie deux modèles de Machine Learning entraînés sur le dataset 
 
 - Python 3.12+
 - Git
+- Git LFS (pour les modèles ML)
 
 ### Démarrage rapide (pour quelqu'un qui clone le projet)
 
 ```bash
-# 1. Cloner le repository
+# 0. Installer Git LFS (une seule fois sur votre machine)
+# Linux:
+sudo apt install git-lfs
+# Mac:
+brew install git-lfs
+# Windows: https://git-lfs.github.com
+
+git lfs install
+
+# 1. Cloner le repository (Git LFS téléchargera automatiquement les modèles)
 git clone https://github.com/clementRbl/deploy-ml.git
 cd deploy-ml
 
