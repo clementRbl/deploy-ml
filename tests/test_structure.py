@@ -5,6 +5,8 @@ Ces tests seront enrichis dans la branche feature/5-tests.
 import json
 from pathlib import Path
 
+import pytest
+
 
 def test_project_structure():
     """Vérifie que la structure de base du projet existe."""
@@ -20,8 +22,17 @@ def test_project_structure():
 
 
 def test_models_exist():
-    """Vérifie que les modèles ML sont présents."""
+    """Vérifie que les modèles ML sont présents.
+
+    Note: Les fichiers .joblib ne sont plus versionnés dans Git.
+    Ils sont uniquement inclus dans l'image Docker via COPY.
+    Ce test skip en CI/CD mais valide la présence locale.
+    """
     models_dir = Path(__file__).parent.parent / "src" / "models"
+
+    # Skip si les modèles ne sont pas présents (environnement CI/CD)
+    if not (models_dir / "energy_model.joblib").exists():
+        pytest.skip("Models not in Git (included in Docker image only)")
 
     assert (models_dir / "energy_model.joblib").exists()
     assert (models_dir / "co2_model.joblib").exists()
