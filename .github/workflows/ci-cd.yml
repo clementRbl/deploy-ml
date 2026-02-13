@@ -118,8 +118,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Create clean deployment without history
+      - name: Create clean deployment with models
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
@@ -129,12 +131,17 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-          # Create orphan branch without history (no binary files in history)
+          # Restore model files from old commit (before deletion)
+          git checkout 530a668 -- src/models/energy_model.joblib src/models/co2_model.joblib
+
+          # Create orphan branch without history
           git checkout --orphan hf-deploy
           git add -A
-          git commit -m "Deploy: Clean commit without binary history"
+          # Force add model files (ignore .gitignore)
+          git add -f src/models/*.joblib
+          git commit -m "Deploy: Include models in Docker image"
 
-          # Force push to HuggingFace (replaces entire history)
+          # Force push to HuggingFace
           git push --force https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE_NAME} hf-deploy:main
 
   notify:
