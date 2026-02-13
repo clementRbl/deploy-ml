@@ -121,28 +121,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create clean deployment with models
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+
+      - name: Deploy to HuggingFace Spaces
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
         run: |
-          # Configure git
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-          # Restore model files from first commit (before LFS)
+          # Restore real model files from initial commit (before LFS)
           git checkout 886e641 -- src/models/energy_model.joblib src/models/co2_model.joblib
+          ls -lh src/models/*.joblib
 
-          # Create orphan branch without history
-          git checkout --orphan hf-deploy
-          git add -A
-          # Force add model files (ignore .gitignore)
-          git add -f src/models/*.joblib
-          git commit -m "Deploy: Include models in Docker image"
+          # Upload entire folder via HuggingFace Hub API (handles Xet automatically)
+          python -c "
+          import os
+          from huggingface_hub import HfApi
 
-          # Force push to HuggingFace
-          git push --force https://${HF_USERNAME}:${HF_TOKEN}@huggingface.co/spaces/${HF_USERNAME}/${HF_SPACE_NAME} hf-deploy:main
+          api = HfApi(token=os.environ['HF_TOKEN'])
+          repo_id = f\"{os.environ['HF_USERNAME']}/{os.environ['HF_SPACE_NAME']}\"
+
+          api.upload_folder(
+              folder_path='.',
+              repo_id=repo_id,
+              repo_type='space',
+              ignore_patterns=['.git/*', '.venv/*', '__pycache__/*', '.pytest_cache/*', 'htmlcov/*', '*.pyc'],
+          )
+          print(f'Successfully deployed to https://huggingface.co/spaces/{repo_id}')
+          "
 
   notify:
     name: Notify
