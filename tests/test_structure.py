@@ -24,8 +24,8 @@ def test_project_structure():
 def test_models_exist():
     """Vérifie que les modèles ML sont présents.
 
-    Note: Les fichiers .joblib ne sont plus versionnés dans Git.
-    Ils sont uniquement inclus dans l'image Docker via COPY.
+    Note: Les fichiers .joblib ne sont pas versionnés dans Git.
+    Ils sont téléchargés dans l'image Docker via hf_hub_download.
     Ce test skip en CI/CD mais valide la présence locale.
     """
     models_dir = Path(__file__).parent.parent / "src" / "models"

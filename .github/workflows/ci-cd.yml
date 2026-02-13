@@ -135,7 +135,7 @@ jobs:
           HF_USERNAME: ${{ secrets.HF_USERNAME }}
           HF_SPACE_NAME: ${{ secrets.HF_SPACE_NAME }}
         run: |
-          # Restore real model files from initial commit (before LFS)
+          # Restore model files from initial commit (not tracked by Git)
           git checkout 886e641 -- src/models/energy_model.joblib src/models/co2_model.joblib
           ls -lh src/models/*.joblib
 

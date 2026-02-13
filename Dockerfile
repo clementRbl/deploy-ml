@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY data/ ./data/
 
-# Download ML models from HuggingFace repo (handles LFS/Xet dereference)
-# COPY may get LFS pointers instead of real files, so we download via API
+# Download ML models from HuggingFace (not in Git, gitignored)
+# Models are stored on HuggingFace Spaces and downloaded at build time
 RUN python -c "\
 from huggingface_hub import hf_hub_download; \
 import shutil, os; \
