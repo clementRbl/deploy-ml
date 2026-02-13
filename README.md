@@ -53,47 +53,43 @@ Ce projet déploie deux modèles de Machine Learning entraînés sur le dataset 
 
 ### Prérequis
 
-- Python 3.10+
-- PostgreSQL 14+ (pour la traçabilité)
+- Python 3.12+
 - Git
 
-### Installation locale
+### Démarrage rapide (pour quelqu'un qui clone le projet)
 
 ```bash
-# Cloner le repository
-git clone https://github.com/<username>/deploy_ml.git
-cd deploy_ml
+# 1. Cloner le repository
+git clone https://github.com/clementRbl/deploy-ml.git
+cd deploy-ml
 
-# Créer un environnement virtuel
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou: venv\Scripts\activate  # Windows
+# 2. Créer et activer l'environnement virtuel
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# ou: .venv\Scripts\activate  # Windows
 
-# Installer les dépendances
+# 3. Installer les dépendances
 pip install -r requirements.txt
 
-# Entraîner les modèles (optionnel, modèles pré-entraînés inclus)
-python scripts/train_model.py
+# 4. Lancer le serveur API
+uvicorn src.api.main:app --host 0.0.0.0 --port 7860
 
-# Lancer l'API
-uvicorn src.api.main:app --reload
+# ✅ API accessible sur http://localhost:7860
+# 📚 Documentation Swagger : http://localhost:7860/docs
 ```
 
-### Variables d'environnement
+### Variables d'environnement (optionnel)
 
-Créer un fichier `.env` à la racine :
+Le fichier `.env` n'est **pas nécessaire** pour tester l'API localement. Les valeurs par défaut fonctionnent directement.
 
-```env
-# API
-API_HOST=0.0.0.0
-API_PORT=8000
-DEBUG=true
+Si vous voulez personnaliser la configuration :
 
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/deploy_ml
+```bash
+# Copier l'exemple (optionnel)
+cp .env.example .env
 
-# Security
-SECRET_KEY=your-secret-key-here
+# Éditer .env avec vos valeurs
+nano .env
 ```
 
 ## 💡 Utilisation
@@ -102,44 +98,46 @@ SECRET_KEY=your-secret-key-here
 
 ```python
 import requests
+🚀 Lancer le serveur
 
-# Données d'un bâtiment
-building_data = {
-    "PropertyGFATotal": 50000,
-    "PropertyGFABuilding(s)": 50000,
-    "NumberofBuildings": 1,
-    "NumberofFloors": 5,
-    "PrimaryPropertyType": "Office",
-    "LargestPropertyUseType": "Office",
-    "LargestPropertyUseTypeGFA": 50000,
-    # ... autres features
-}
+```bash
+# Activer l'environnement virtuel (si pas déjà fait)
+source .venv/bin/activate
 
-# Appel API
-response = requests.post(
-    "http://localhost:8000/predict",
-    json=building_data
-)
+# Lancer le serveur de développement
+uvicorn src.api.main:app --host 0.0.0.0 --port 7860 --reload
 
-# Résultat
-print(response.json())
+# Serveur prêt ! 
+# 🌐 API : http://localhost:7860
+# 📚 Swagger : http://localhost:7860/docs
+```
+
+### 🧪 Tester manuellement l'API (sans tests automatiques)
+
+#### 1. Health check
+
+```bash
+# Vérifier que l'API fonctionne
+curl http://localhost:7860/api/v1/health
+
+# Réponse attendue :
 # {
-#     "energy_prediction_kbtu": 2500000.0,
-#     "co2_prediction_tons": 150.5,
-#     "prediction_id": "uuid-xxxx"
+#   "status": "healthy",
+#   "version": "0.3.0",
+#   "models_loaded": true
 # }
 ```
 
-## 🔌 API Endpoints
+Documentation interactive complète : **http://localhost:7860/docs**
 
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| `GET` | `/` | Health check |
-| `GET` | `/docs` | Documentation Swagger |
-| `POST` | `/predict` | Prédiction énergie + CO2 |
-| `GET` | `/predictions/{id}` | Récupérer une prédiction |
-| `GET` | `/predictions` | Liste des prédictions |
 
+#### 3. Obtenir les infos des modèles
+
+```bash
+curl http://localhost:7860/api/v1/models/info
+
+# Réponse : métadonnées des modèles (algorithmes, R², features...)
+```
 Documentation interactive : [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ## 🗄️ Base de données
@@ -157,83 +155,147 @@ CREATE TABLE predictions (
 );
 ```
 
-### Initialisation
+### Lancer TOUS les tests
 
 ```bash
-# Créer la base de données
-python src/db/create_db.py
-```
+# Activer l'environnement virtuel
+source .venv/bin/activate
 
-## 🧪 Tests
-
-```bash
 # Lancer tous les tests
 pytest
 
-# Avec couverture
+# Avec détails verbeux
+pytest -v
+
+# Avec couverture de code
 pytest --cov=src --cov-report=html
 
-# Tests spécifiques
-pytest tests/test_api.py -v
+# Ouvrir le rapport de couverture
+open htmlcov/index.html  # Mac
+# ou: xdg-open htmlcov/index.html  # Linux
 ```
 
-## 🔄 CI/CD
+### Tests disponibles
 
-Le pipeline GitHub Actions :
+```bash
+# Tests de structure uniquement
+pytest tests/test_structure.py -v
 
-1. **Test** : Exécute pytest sur chaque push/PR
-2. **Lint** : Vérifie le code avec ruff
+# Tests d'un fichier spécifique
+pytest tests/test_api.py -v  # (à venir)
+
+# Tests avec sortie complète
+pytest -vv --tb=short
+```
+
+### Architecture Best Practices 2026
+
+- ✅ **API versionnée** (`/api/v1/`) pour évolutions futures
+- ✅ **Dependency Injection** avec FastAPI `Depends()`
+- ✅ **Configuration centralisée** avec `pydantic-settings`
+- ✅ **Logging structuré** avec niveaux et couleurs
+- ✅ **Exceptions typées** pour gestion d'erreurs propre
+- ✅ **Séparation des responsabilités** (api/core/services/schemas)**Lint** : Vérifie le code avec ruff
 3. **Deploy** : Déploie sur Hugging Face Spaces (branche main)
 
 ## 🌐 Déploiement
 
-### Hugging Face Spaces
+### 🔄 Workflow complet : Local → GitHub → Production
 
-L'application est déployée automatiquement sur : `https://huggingface.co/spaces/<username>/deploy-ml`
+#### 1️⃣ Développement LOCAL (votre machine)
 
-### Docker (optionnel)
+Quand quelqu'un clone le projet, il peut travailler **localement** de deux façons :
+
+##### Option A : Python directement (recommandé pour le dev)
 
 ```bash
-docker build -t deploy-ml .
-docker run -p 8000:8000 deploy-ml
+# Installation
+git clone https://github.com/clementRbl/deploy-ml.git
+cd deploy-ml
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Lancement
+uvicorn src.api.main:app --host 0.0.0.0 --port 7860 --reload
+# ✅ API sur http://localhost:7860
 ```
 
-## 📁 Structure du projet
+**Avantages** : Rechargement automatique (`--reload`), debugging facile, modifications visibles instantanément.
 
-```
-deploy_ml/
-├── .github/
-│   └── workflows/          # CI/CD GitHub Actions
-├── data/
-│   └── *.csv               # Dataset
-├── docs/                   # Documentation
-├── scripts/
-│   ├── train_model.py      # Script d'entraînement
-│   └── *.ipynb             # Notebooks d'exploration
-├── src/
-│   ├── api/                # FastAPI application
-│   │   ├── main.py
-│   │   ├── routes.py
-│   │   └── schemas.py
-│   ├── db/                 # Database scripts
-│   │   ├── create_db.py
-│   │   └── models.py
-│   └── models/             # ML models (.joblib)
-├── tests/                  # Tests Pytest
-├── .env.example
-├── .gitignore
-├── README.md
-└── requirements.txt
+##### Option B : Docker localement (optionnel, pour tester la prod)
+
+```bash
+# Build de l'image
+docker build -t energy-api .
+
+# Lancement du container
+docker run -p 7860:7860 energy-api
+# ✅ API sur http://localhost:7860
 ```
 
-## 📄 License
+**Avantages** : Environnement identique à la production, isolation complète.
 
-MIT License - voir [LICENSE](LICENSE) pour plus de détails.
+#### 2️⃣ Push sur GITHUB
+
+```bash
+git add .
+git commit -m "feat: nouvelle fonctionnalité"
+git push origin main
+```
+
+Dès le push, **GitHub Actions** se déclenche automatiquement (voir `.github/workflows/ci.yml`) :
+- ✅ Vérifie le code (linting)
+- ✅ Lance les tests (`pytest`)
+- ✅ Si tests OK → Continue vers le déploiement
+
+#### 3️⃣ Déploiement PRODUCTION automatique (HuggingFace Spaces)
+
+**C'est là que la "magie" opère** ! Aucune action manuelle nécessaire.
+
+**Configuration initiale (déjà faite)** :
+1. HuggingFace Spaces lié au repo GitHub
+2. Secrets configurés : `HF_TOKEN`, `HF_USERNAME`, `HF_SPACE_NAME`
+
+**Workflow automatique** :
+```
+GitHub push → HF détecte le changement
+            → HF lit le Dockerfile
+            → HF construit l'image Docker
+            → HF lance le container
+            → API publique en ligne !
+```
+
+**Résultat** : API accessible publiquement sur `https://clementrbl-deploy-ml.hf.space`
+
+### 📦 Détails du Dockerfile
+
+Le `Dockerfile` contient les instructions pour construire l'image :
+
+```dockerfile
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 7860
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+```
+
+**En local** : Vous exécutez `docker build` et `docker run` vous-même.  
+**En production (HF)** : HuggingFace exécute ces commandes automatiquement à chaque push.
+
+### 🔑 Pour résumer
+
+| Environnement | Méthode | Commande manuelle ? | Rechargement auto ? |
+|---------------|---------|---------------------|---------------------|
+| **Local Dev** | Python | `uvicorn ... --reload` | ✅ Oui |
+| **Local Test** | Docker | `docker run` | ❌ Non (rebuild) |
+| **Production** | HF Spaces | ❌ Aucune (automatique) | ✅ Oui (à chaque push) |
+
 
 ## 👤 Auteur
 
 Projet réalisé dans le cadre de la formation Data Scientist - OpenClassrooms.
 
 ---
-
-*Dernière mise à jour : Février 2026*
