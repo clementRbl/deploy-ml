@@ -61,7 +61,7 @@ jobs:
         continue-on-error: true
 
   validate-models:
-    name: Validate ML Models
+    name: Validate ML Models Metadata
     runs-on: ubuntu-latest
     needs: test
 
@@ -75,30 +75,38 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas numpy scikit-learn lightgbm joblib
-
-      - name: Validate models can be loaded
+      - name: Validate model metadata structure
         run: |
           python -c "
-          import joblib
           import json
           from pathlib import Path
 
+          # Models are not in Git (included in Docker image only)
+          # We only validate the metadata JSON structure here
           models_dir = Path('src/models')
+          metadata_path = models_dir / 'model_metadata.json'
 
-          # Test loading
-          energy_model = joblib.load(models_dir / 'energy_model.joblib')
-          co2_model = joblib.load(models_dir / 'co2_model.joblib')
+          # Validate metadata file exists
+          assert metadata_path.exists(), 'model_metadata.json not found'
 
-          with open(models_dir / 'model_metadata.json') as f:
+          # Validate JSON structure
+          with open(metadata_path) as f:
               metadata = json.load(f)
 
-          print('Energy model loaded:', metadata['energy_model']['algorithm'])
-          print('CO2 model loaded:', metadata['co2_model']['algorithm'])
-          print('All models validated successfully!')
+          required_models = ['energy_model', 'co2_model']
+          required_fields = ['file', 'target', 'algorithm', 'r2_cv',
+                           'numeric_features', 'categorical_features']
+
+          for model_key in required_models:
+              assert model_key in metadata, f'{model_key} missing from metadata'
+              model_info = metadata[model_key]
+              for field in required_fields:
+                  assert field in model_info, f'{field} missing for {model_key}'
+
+          print('Energy model:', metadata['energy_model']['algorithm'])
+          print('CO2 model:', metadata['co2_model']['algorithm'])
+          print('Metadata validation successful!')
+          print('Note: .joblib files validated at Docker build time')
           "
 
   deploy-hf:
