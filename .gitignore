@@ -24,9 +24,9 @@ env/
 .env.local
 .env.*.local
 
-# Models (large files - consider Git LFS for production)
-# src/models/*.joblib
-# src/models/*.pkl
+# Models (large binary files - included in Docker image only)
+src/models/*.joblib
+src/models/*.pkl
 
 # Database
 *.db
