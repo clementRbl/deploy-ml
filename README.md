@@ -107,7 +107,7 @@ source .venv/bin/activate
 # Lancer le serveur de développement
 uvicorn src.api.main:app --host 0.0.0.0 --port 7860 --reload
 
-# Serveur prêt ! 
+# Serveur prêt !
 # 🌐 API : http://localhost:7860
 # 📚 Swagger : http://localhost:7860/docs
 ```
@@ -282,7 +282,7 @@ EXPOSE 7860
 CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
 ```
 
-**En local** : Vous exécutez `docker build` et `docker run` vous-même.  
+**En local** : Vous exécutez `docker build` et `docker run` vous-même.
 **En production (HF)** : HuggingFace exécute ces commandes automatiquement à chaque push.
 
 ### 🔑 Pour résumer

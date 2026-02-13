@@ -19,7 +19,7 @@ jobs:
   test:
     name: Tests & Lint
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
     name: Validate ML Models
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,16 +86,16 @@ jobs:
           import joblib
           import json
           from pathlib import Path
-          
+
           models_dir = Path('src/models')
-          
+
           # Test loading
           energy_model = joblib.load(models_dir / 'energy_model.joblib')
           co2_model = joblib.load(models_dir / 'co2_model.joblib')
-          
+
           with open(models_dir / 'model_metadata.json') as f:
               metadata = json.load(f)
-          
+
           print('Energy model loaded:', metadata['energy_model']['algorithm'])
           print('CO2 model loaded:', metadata['co2_model']['algorithm'])
           print('All models validated successfully!')
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, validate-models]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -128,7 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy-hf
     if: always() && github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Deployment status
         env:

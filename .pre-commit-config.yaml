@@ -1,0 +1,44 @@
+# Configuration des hooks pre-commit
+# Installation: pip install pre-commit && pre-commit install
+# Usage: automatique à chaque git commit
+
+repos:
+  # Ruff - Linter et formatter Python ultra-rapide
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.0
+    hooks:
+      # Linting (vérifie le code)
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi, jupyter]
+
+      # Formatting (formate le code automatiquement)
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
+
+  # Hooks basiques de qualité
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace      # Supprime espaces en fin de ligne
+      - id: end-of-file-fixer        # Ajoute newline en fin de fichier
+      - id: check-yaml                # Vérifie syntaxe YAML
+      - id: check-added-large-files  # Empêche commit de gros fichiers (>500KB)
+        args: ['--maxkb=500']
+      - id: check-merge-conflict     # Détecte markers de merge
+      - id: debug-statements          # Détecte breakpoint() et pdb
+
+  # Vérifie les requirements.txt
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: requirements-txt-fixer   # Trie requirements.txt
+
+# Exclusions globales
+exclude: |
+  (?x)^(
+    .*\.ipynb_checkpoints/.*|
+    .venv/.*|
+    __pycache__/.*|
+    scripts/.*\.ipynb
+  )$
