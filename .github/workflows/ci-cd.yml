@@ -131,8 +131,8 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-          # Restore model files from old commit (before deletion)
-          git checkout 530a668 -- src/models/energy_model.joblib src/models/co2_model.joblib
+          # Restore model files from first commit (before LFS)
+          git checkout 886e641 -- src/models/energy_model.joblib src/models/co2_model.joblib
 
           # Create orphan branch without history
           git checkout --orphan hf-deploy
