@@ -16,6 +16,20 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 COPY data/ ./data/
 
+# Download ML models from HuggingFace repo (handles LFS/Xet dereference)
+# COPY may get LFS pointers instead of real files, so we download via API
+RUN python -c "\
+from huggingface_hub import hf_hub_download; \
+import shutil, os; \
+os.makedirs('src/models', exist_ok=True); \
+[shutil.copy( \
+    hf_hub_download('ClementRbl/deploy-ml', f'src/models/{m}', repo_type='space'), \
+    f'src/models/{m}' \
+) for m in ['energy_model.joblib', 'co2_model.joblib']]; \
+print('Models downloaded successfully'); \
+[print(f'  {m}: {os.path.getsize(f\"src/models/{m}\")} bytes') for m in ['energy_model.joblib', 'co2_model.joblib']]; \
+"
+
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser
 USER appuser
