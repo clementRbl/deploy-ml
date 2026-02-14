@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from src.api.v1.endpoints import health, models, predictions
+from src.api.v1.endpoints import database, health, models, predictions
 
 # Router principal V1
 api_router = APIRouter()
@@ -9,3 +9,4 @@ api_router = APIRouter()
 api_router.include_router(health.router)
 api_router.include_router(predictions.router)
 api_router.include_router(models.router)
+api_router.include_router(database.router)

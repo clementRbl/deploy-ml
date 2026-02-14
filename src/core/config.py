@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     # Méta
     app_name: str = "Deploy ML API"
-    app_version: str = "0.3.0"
+    app_version: str = "0.4.0"
     api_v1_prefix: str = "/api/v1"
 
     # Environment
@@ -21,6 +21,9 @@ class Settings(BaseSettings):
 
     # Paths
     models_dir: Path = Path(__file__).parent.parent / "models"
+
+    # Database
+    database_url: str = "postgresql://deploy_ml:deploy_ml@localhost:5432/deploy_ml"
 
     # Logging
     log_level: str = "INFO"
