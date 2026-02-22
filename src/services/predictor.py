@@ -39,8 +39,8 @@ class ModelPredictor:
             logger.info(f"   - CO2: {self.metadata['co2_model']['algorithm']}")
 
         except Exception as e:
-            logger.error(f"Erreur lors du chargement des modèles: {e}")
-            raise ModelNotLoadedError(f"Failed to load models: {e}")
+            logger.warning(f"Modèles non disponibles: {e}")
+            # Ne pas lever d'exception : l'API demarre mais is_loaded() retournera False
 
     def _prepare_features(self, data: dict) -> pd.DataFrame:
         """Prépare les features pour la prédiction."""

@@ -238,11 +238,17 @@ Le pipeline GitHub Actions (`.github/workflows/ci-cd.yml`) execute :
 3. **Validation** : Verification des metadonnees des modeles
 4. **Deploy** : Upload vers Hugging Face Spaces (branche `main` uniquement)
 
+### Déclenchement du pipeline
+
+- **Push sur `main`** : lance les tests puis le déploiement Hugging Face.
+- **Pull request vers `main`** : lance les tests uniquement. Les tests doivent passer avant de merger (configurer la protection de branche : *Settings → Branches → Add rule* sur `main` → cocher *Require status checks to pass before merging* et sélectionner le job *Tests & Lint*).
+- **Push sur une branche `feature/*`** : ne déclenche pas la CI (évite les runs inutiles).
+
 ### Environnements (dev / test / prod)
 
 - **Dev** : developpement local (ou branches `feature/*`) — `ENVIRONMENT=development`, base PostgreSQL locale.
-- **Test** : pipeline CI a chaque push ou PR — job avec `ENVIRONMENT: test`, pas de deploiement.
-- **Prod** : deploiement automatique sur Hugging Face Spaces apres merge sur `main` — utilise les secrets GitHub (`HF_TOKEN`, etc.). Voir [docs/secrets.md](docs/secrets.md) pour le detail.
+- **Test** : pipeline CI sur PR vers `main` — job avec `ENVIRONMENT: test`, pas de deploiement.
+- **Prod** : deploiement automatique sur Hugging Face Spaces après push sur `main` — utilise les secrets GitHub (`HF_TOKEN`, etc.). Voir [docs/secrets.md](docs/secrets.md) pour le detail.
 
 ## Deploiement
 

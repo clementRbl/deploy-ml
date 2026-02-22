@@ -6,6 +6,8 @@ Couvre les cas nominaux, les erreurs et les cas limites.
 
 import pytest
 
+from tests.markers import requires_models
+
 
 class TestHealthEndpoints:
     """Tests pour les endpoints de sante."""
@@ -19,6 +21,7 @@ class TestHealthEndpoints:
         assert "version" in data
         assert "models_loaded" in data
 
+    @requires_models
     def test_health_returns_healthy(self, client):
         """GET /health retourne un status healthy."""
         response = client.get("/api/v1/health")
@@ -39,6 +42,7 @@ class TestHealthEndpoints:
 class TestPredictionEndpoint:
     """Tests pour POST /predict."""
 
+    @requires_models
     def test_predict_valid_input(self, client, valid_building_input):
         """Une prediction avec des donnees valides retourne 200."""
         response = client.post("/api/v1/predict", json=valid_building_input)
@@ -50,6 +54,7 @@ class TestPredictionEndpoint:
         assert data["energy_prediction_kbtu"] > 0
         assert data["co2_prediction_tons"] > 0
 
+    @requires_models
     def test_predict_minimal_input(self, client, minimal_building_input):
         """Une prediction avec le payload minimal fonctionne."""
         response = client.post("/api/v1/predict", json=minimal_building_input)
@@ -58,12 +63,14 @@ class TestPredictionEndpoint:
         assert data["energy_prediction_kbtu"] > 0
         assert data["co2_prediction_tons"] > 0
 
+    @requires_models
     def test_predict_returns_unique_ids(self, client, valid_building_input):
         """Chaque prediction a un ID unique."""
         r1 = client.post("/api/v1/predict", json=valid_building_input)
         r2 = client.post("/api/v1/predict", json=valid_building_input)
         assert r1.json()["prediction_id"] != r2.json()["prediction_id"]
 
+    @requires_models
     def test_predict_same_input_same_result(self, client, valid_building_input):
         """Le meme input produit le meme resultat (deterministe)."""
         r1 = client.post("/api/v1/predict", json=valid_building_input)
@@ -140,6 +147,7 @@ class TestPredictionEndpoint:
         )
         assert response.status_code == 422
 
+    @requires_models
     def test_predict_large_building(self, client):
         """Une tres grande surface fonctionne."""
         response = client.post(
@@ -162,6 +170,7 @@ class TestPredictionEndpoint:
         data = response.json()
         assert data["energy_prediction_kbtu"] > 0
 
+    @requires_models
     def test_predict_various_property_types(self, client):
         """Differents types de propriete sont acceptes."""
         for prop_type in ["Office", "Hotel", "Retail Store", "Warehouse"]:
@@ -184,6 +193,7 @@ class TestPredictionEndpoint:
         assert response.status_code == 405
 
 
+@requires_models
 class TestModelsEndpoint:
     """Tests pour GET /models/info."""
 
@@ -333,6 +343,7 @@ class TestDatabaseEndpoints:
         assert data["total"] == 0
         assert data["predictions"] == []
 
+    @requires_models
     def test_predictions_history_after_predict(self, client, valid_building_input):
         """L'historique contient la prediction apres un POST /predict."""
         client.post("/api/v1/predict", json=valid_building_input)

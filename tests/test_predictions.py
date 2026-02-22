@@ -36,10 +36,10 @@ class TestPredictorLoading:
         p2 = get_predictor()
         assert p1 is p2
 
-    def test_predictor_invalid_path_raises(self):
-        """Un chemin inexistant leve ModelNotLoadedError."""
-        with pytest.raises(ModelNotLoadedError):
-            ModelPredictor(models_dir=Path("/nonexistent/path"))
+    def test_predictor_invalid_path_not_loaded(self):
+        """Un chemin inexistant fait que le predictor n'est pas charge."""
+        p = ModelPredictor(models_dir=Path("/nonexistent/path"))
+        assert not p.is_loaded()
 
 
 class TestPredictorPredict:

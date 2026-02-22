@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from src.api.main import app
 from src.db.database import get_db
 from src.db.models import Base
 from src.services.predictor import get_predictor
@@ -38,6 +37,8 @@ def db_session():
 @pytest.fixture
 def client():
     """Client de test FastAPI avec DB SQLite en memoire."""
+    from src.api.main import app
+
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -66,8 +67,14 @@ def client():
 
 @pytest.fixture
 def predictor():
-    """Instance reelle du predictor (modeles charges)."""
-    return get_predictor()
+    """Instance reelle du predictor (modeles charges).
+
+    Skip automatiquement si les modeles ne sont pas disponibles.
+    """
+    p = get_predictor()
+    if not p.is_loaded():
+        pytest.skip("ML models (.joblib) not available (CI environment)")
+    return p
 
 
 @pytest.fixture

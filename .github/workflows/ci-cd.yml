@@ -1,5 +1,7 @@
-# Ce workflow gère les tests et le déploiement automatique
-# Environnements: dev (branches feature/*), test (PR), prod (main)
+# Ce workflow gère les tests et le déploiement automatique.
+# - Push sur main uniquement : déclenche tests + déploiement HF.
+# - Pull request vers main : déclenche les tests (obligatoire avant merge).
+# Les push sur les branches feature/* ne déclenchent pas la CI.
 
 name: CI/CD Pipeline
 
@@ -7,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'
   pull_request:
     branches:
       - main
