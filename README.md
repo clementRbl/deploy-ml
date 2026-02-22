@@ -27,6 +27,9 @@ API de Machine Learning pour predire la **consommation energetique** et les **em
 - [Tests](#tests)
 - [CI/CD](#cicd)
 - [Deploiement](#deploiement)
+- [Authentification](#authentification)
+- [Sécurisation](#sécurisation)
+- [Documentation technique](#documentation-technique)
 - [Structure du projet](#structure-du-projet)
 
 ## Description
@@ -235,6 +238,12 @@ Le pipeline GitHub Actions (`.github/workflows/ci-cd.yml`) execute :
 3. **Validation** : Verification des metadonnees des modeles
 4. **Deploy** : Upload vers Hugging Face Spaces (branche `main` uniquement)
 
+### Environnements (dev / test / prod)
+
+- **Dev** : developpement local (ou branches `feature/*`) — `ENVIRONMENT=development`, base PostgreSQL locale.
+- **Test** : pipeline CI a chaque push ou PR — job avec `ENVIRONMENT: test`, pas de deploiement.
+- **Prod** : deploiement automatique sur Hugging Face Spaces apres merge sur `main` — utilise les secrets GitHub (`HF_TOKEN`, etc.). Voir [docs/secrets.md](docs/secrets.md) pour le detail.
+
 ## Deploiement
 
 ### Workflow : Local -> GitHub -> Production
@@ -278,13 +287,44 @@ GitHub push -> GitHub Actions (tests + lint + validation)
 | **Local Test** | Docker | `docker run` | Non (rebuild) |
 | **Production** | HF Spaces | Aucune (automatique) | Oui (a chaque push) |
 
+## Authentification
+
+Cette API est livrée en **Proof of Concept (POC)** : elle ne met pas en œuvre d’authentification par défaut. Tous les endpoints sont accessibles sans token ni identifiant.
+
+- **En local / démo** : aucun paramètre d’auth n’est requis.
+- **En production** : pour sécuriser l’accès, vous pouvez ajouter par exemple :
+  - une **API key** dans un header (ex. `X-API-Key`) vérifiée par un middleware ou une dépendance FastAPI ;
+  - ou une authentification **JWT** (OAuth2) avec les dépendances déjà présentes dans `requirements.txt` (`python-jose`, `passlib`).
+
+## Sécurisation
+
+### Gestion des secrets
+
+- **En local** : ne jamais commiter le fichier `.env`. Utiliser `.env.example` comme modèle et copier vers `.env` pour y renseigner les valeurs réelles. Le fichier `.env` est listé dans `.gitignore`.
+- **En CI/CD** : les secrets (token Hugging Face, identifiants du Space) sont injectés via les **GitHub Secrets** (`HF_TOKEN`, `HF_USERNAME`, `HF_SPACE_NAME`). Ils ne figurent pas dans le code ni dans le workflow en clair.
+- **Base de données** : l’URL de connexion PostgreSQL (`DATABASE_URL`) doit rester dans `.env` en local ; en production HF, la base n’est pas exposée (API seule).
+
+Pour le détail des variables et bonnes pratiques, voir [docs/secrets.md](docs/secrets.md).
+
+### Bonnes pratiques
+
+- Ne pas exposer de clés, tokens ou mots de passe dans le dépôt.
+- Utiliser des variables d’environnement pour toute configuration sensible.
+- En production, restreindre CORS et limiter les origines autorisées si besoin (voir `src/core/config.py`).
+
+## Documentation technique
+
+- **Performances du modèle et maintenance** : métriques (R²), périmètre des données, limites connues, mise à jour des modèles (.joblib), compatibilité des features et versioning — voir [docs/model_performance.md](docs/model_performance.md).
+- **Schéma de la base de données** : [docs/database_uml.md](docs/database_uml.md).
+- **Architecture de l’API** : [ARCHITECTURE_GUIDE.md](ARCHITECTURE_GUIDE.md).
+
 ## Structure du projet
 
 ```
 deploy-ml/
 +-- .github/workflows/     # CI/CD GitHub Actions
 +-- data/                  # Dataset Seattle
-+-- docs/                  # Documentation (secrets, UML)
++-- docs/                  # Documentation (UML, secrets, performances/modèle)
 +-- scripts/               # Scripts DB + notebook
 +-- sql/                   # Schema SQL
 +-- src/
