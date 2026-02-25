@@ -46,7 +46,7 @@ Ce projet deploie deux modeles de Machine Learning entraines sur le dataset [Sea
 - **API REST** avec FastAPI et documentation Swagger
 - **Multi-output** : prediction simultanee energie + CO2
 - **Base de donnees PostgreSQL** : dataset + tracabilite des predictions
-- **Tests** : couverture Pytest (15 tests, ORM + structure)
+- **Tests** : couverture Pytest (69 tests, API + service + ORM + structure)
 - **CI/CD** : GitHub Actions + deploiement Hugging Face Spaces
 - **Clean Architecture** : separation api/core/services/schemas/db
 
@@ -211,14 +211,18 @@ pytest --cov=src --cov-report=html
 xdg-open htmlcov/index.html  # Linux
 ```
 
-### Tests disponibles (15)
+### Tests disponibles (69)
 
-| Categorie | Tests | Description |
-|-----------|-------|-------------|
+| Categorie | Nombre | Description |
+|-----------|--------|-------------|
 | Structure | 4 | Projet, modeles, metadata, requirements |
+| API Endpoints | 29 | Health, predict (valide/erreurs), models/info, db/buildings, db/predictions, 404 |
+| Predictions (service) | 25 | Chargement predictor, predict, feature engineering, schemas, exceptions |
 | Building ORM | 4 | CRUD, unicite, repr, bulk insert |
 | Prediction ORM | 4 | CRUD, relation building, sans building, multiples |
 | Schema DB | 3 | Tables creees, colonnes buildings, colonnes predictions |
+
+Pour lister tous les tests : `pytest --collect-only -q`.
 
 ### Best Practices
 

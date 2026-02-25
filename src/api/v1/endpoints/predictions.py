@@ -3,7 +3,7 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from src.api.dependencies import DbDep, PredictorDep
+from src.api.dependencies import DbDep, PredictorDep, SettingsDep
 from src.core.exceptions import InvalidInputError, ModelNotLoadedError, PredictionError
 from src.core.logging import logger
 from src.db.models import Prediction
@@ -18,6 +18,7 @@ async def predict_building(
     building: BuildingInput,
     predictor: PredictorDep,
     db: DbDep,
+    settings: SettingsDep,
 ) -> PredictionOutput:
     """Prédit la consommation énergétique et les émissions de CO2 d'un bâtiment.
 
@@ -134,5 +135,7 @@ async def predict_building(
         raise HTTPException(status_code=500, detail=str(e.message))
 
     except Exception as e:
-        logger.error(f"Erreur inattendue: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        logger.exception("Erreur inattendue lors de la prédiction")
+        if settings.debug:
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erreur interne. Veuillez réessayer.")
