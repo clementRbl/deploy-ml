@@ -17,9 +17,9 @@ class TestHealthEndpoints:
         response = client.get("/api/v1/")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "ok"
-        assert "version" in data
-        assert "models_loaded" in data
+        assert data["status"] == "ok"  # signifie que la reponse est ok
+        assert "version" in data  # signifie que la version est dans la reponse
+        assert "models_loaded" in data  # signifie que les models sont chargés
 
     @requires_models
     def test_health_returns_healthy(self, client):
@@ -27,16 +27,20 @@ class TestHealthEndpoints:
         response = client.get("/api/v1/health")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "healthy"
-        assert data["models_loaded"] is True
+        assert data["status"] == "healthy"  # signifie que la reponse est healthy
+        assert data["models_loaded"] is True  # signifie que les models sont chargés
 
     def test_health_response_schema(self, client):
         """La reponse health a le bon schema."""
         response = client.get("/api/v1/health")
         data = response.json()
-        assert set(data.keys()) == {"status", "version", "models_loaded"}
-        assert isinstance(data["version"], str)
-        assert isinstance(data["models_loaded"], bool)
+        assert set(data.keys()) == {
+            "status",
+            "version",
+            "models_loaded",
+        }  # signifie que les champs sont dans la reponse
+        assert isinstance(data["version"], str)  # signifie que la version est une string
+        assert isinstance(data["models_loaded"], bool)  # signifie que les models sont un boolean
 
 
 class TestPredictionEndpoint:

@@ -12,9 +12,9 @@ settings = get_settings()
 engine = create_engine(
     settings.database_url,
     echo=settings.debug,
-    pool_pre_ping=True,
-    pool_size=5,
-    max_overflow=10,
+    pool_pre_ping=True,  # ping la connexion pour la maintenir active
+    pool_size=5,  # nombre de connexions dans le pool
+    max_overflow=10,  # nombre de connexions en plus (par defaut 10)
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

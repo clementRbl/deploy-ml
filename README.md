@@ -1,18 +1,8 @@
----
-title: Deploy ML - Energy & CO2 Prediction
-emoji: "🏢"
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Deploy ML - Prediction Energetique et CO2 des Batiments
 
-[![Python](https://img.shields.io/badge/Python-3.12+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[Python](https://python.org)
+[FastAPI](https://fastapi.tiangolo.com)
+[License](LICENSE)
 
 API de Machine Learning pour predire la **consommation energetique** et les **emissions de CO2** des batiments non-residentiels de Seattle.
 
@@ -34,12 +24,14 @@ API de Machine Learning pour predire la **consommation energetique** et les **em
 
 ## Description
 
-Ce projet deploie deux modeles de Machine Learning entraines sur le dataset [Seattle Building Energy Benchmarking](https://data.seattle.gov/dataset/2016-Building-Energy-Benchmarking/2bpz-gwpy) :
+Ce projet deploie deux modeles de Machine Learning entraines sur le dataset Seattle Building Energy Benchmarking :
 
-| Modele | Target | Algorithme | R2 CV |
-|--------|--------|------------|-------|
-| **Energie** | `SiteEnergyUse(kBtu)` | RandomForest | 0.73 |
-| **CO2** | `TotalGHGEmissions` | LightGBM | 0.92 |
+
+| Modele      | Target                | Algorithme   | R2 CV |
+| ----------- | --------------------- | ------------ | ----- |
+| **Energie** | `SiteEnergyUse(kBtu)` | RandomForest | 0.73  |
+| **CO2**     | `TotalGHGEmissions`   | LightGBM     | 0.92  |
+
 
 ### Fonctionnalites
 
@@ -53,6 +45,7 @@ Ce projet deploie deux modeles de Machine Learning entraines sur le dataset [Sea
 ### Gestion des modeles ML
 
 Les modeles ML (fichiers `.joblib`) ne sont **pas versionnes dans Git** (`.gitignore`).
+
 - **Localement** : les fichiers sont presents dans `src/models/` pour le developpement
 - **En production** : telecharges automatiquement depuis HuggingFace lors du build Docker via `hf_hub_download`
 - **Taille totale** : ~3.7 MB (energy_model.joblib + co2_model.joblib)
@@ -142,10 +135,12 @@ python scripts/create_db.py --verify
 
 Deux tables principales (voir [docs/database_uml.md](docs/database_uml.md) pour le schema UML complet) :
 
-| Table | Description | Lignes |
-|-------|-------------|--------|
-| `buildings` | Dataset Seattle 2016 Energy Benchmarking | 3 376 |
+
+| Table         | Description                                      | Lignes   |
+| ------------- | ------------------------------------------------ | -------- |
+| `buildings`   | Dataset Seattle 2016 Energy Benchmarking         | 3 376    |
 | `predictions` | Historique des predictions ML (inputs + outputs) | variable |
+
 
 ### Scripts de requetes
 
@@ -169,6 +164,7 @@ python scripts/query_db.py --predictions
 ### Tracabilite
 
 Chaque appel a `/api/v1/predict` enregistre automatiquement en base :
+
 - Les inputs envoyes au modele
 - Les outputs generes (energie + CO2)
 - La duree de prediction
@@ -196,7 +192,7 @@ curl -X POST http://localhost:7860/api/v1/predict \
 
 Tous les endpoints, schemas et exemples sont disponibles dans la documentation auto-generee :
 
-**http://localhost:7860/docs**
+**[http://localhost:7860/docs](http://localhost:7860/docs)**
 
 ## Tests
 
@@ -213,14 +209,16 @@ xdg-open htmlcov/index.html  # Linux
 
 ### Tests disponibles (69)
 
-| Categorie | Nombre | Description |
-|-----------|--------|-------------|
-| Structure | 4 | Projet, modeles, metadata, requirements |
-| API Endpoints | 29 | Health, predict (valide/erreurs), models/info, db/buildings, db/predictions, 404 |
-| Predictions (service) | 25 | Chargement predictor, predict, feature engineering, schemas, exceptions |
-| Building ORM | 4 | CRUD, unicite, repr, bulk insert |
-| Prediction ORM | 4 | CRUD, relation building, sans building, multiples |
-| Schema DB | 3 | Tables creees, colonnes buildings, colonnes predictions |
+
+| Categorie             | Nombre | Description                                                                      |
+| --------------------- | ------ | -------------------------------------------------------------------------------- |
+| Structure             | 4      | Projet, modeles, metadata, requirements                                          |
+| API Endpoints         | 29     | Health, predict (valide/erreurs), models/info, db/buildings, db/predictions, 404 |
+| Predictions (service) | 25     | Chargement predictor, predict, feature engineering, schemas, exceptions          |
+| Building ORM          | 4      | CRUD, unicite, repr, bulk insert                                                 |
+| Prediction ORM        | 4      | CRUD, relation building, sans building, multiples                                |
+| Schema DB             | 3      | Tables creees, colonnes buildings, colonnes predictions                          |
+
 
 Pour lister tous les tests : `pytest --collect-only -q`.
 
@@ -246,11 +244,11 @@ Le pipeline GitHub Actions (`.github/workflows/ci-cd.yml`) execute :
 
 - **Push sur `main`** : lance les tests puis le déploiement Hugging Face.
 - **Pull request vers `main`** : lance les tests uniquement. Les tests doivent passer avant de merger (configurer la protection de branche : *Settings → Branches → Add rule* sur `main` → cocher *Require status checks to pass before merging* et sélectionner le job *Tests & Lint*).
-- **Push sur une branche `feature/*`** : ne déclenche pas la CI (évite les runs inutiles).
+- **Push sur une branche `feature/**`* : ne déclenche pas la CI (évite les runs inutiles).
 
 ### Environnements (dev / test / prod)
 
-- **Dev** : developpement local (ou branches `feature/*`) — `ENVIRONMENT=development`, base PostgreSQL locale.
+- **Dev** : developpement local (ou branches `feature/`*) — `ENVIRONMENT=development`, base PostgreSQL locale.
 - **Test** : pipeline CI sur PR vers `main` — job avec `ENVIRONMENT: test`, pas de deploiement.
 - **Prod** : deploiement automatique sur Hugging Face Spaces après push sur `main` — utilise les secrets GitHub (`HF_TOKEN`, etc.). Voir [docs/secrets.md](docs/secrets.md) pour le detail.
 
@@ -291,11 +289,13 @@ GitHub push -> GitHub Actions (tests + lint + validation)
 
 ### Resume
 
-| Environnement | Methode | Commande manuelle ? | Rechargement auto ? |
-|---------------|---------|---------------------|---------------------|
-| **Local Dev** | Python | `uvicorn ... --reload` | Oui |
-| **Local Test** | Docker | `docker run` | Non (rebuild) |
-| **Production** | HF Spaces | Aucune (automatique) | Oui (a chaque push) |
+
+| Environnement  | Methode   | Commande manuelle ?    | Rechargement auto ? |
+| -------------- | --------- | ---------------------- | ------------------- |
+| **Local Dev**  | Python    | `uvicorn ... --reload` | Oui                 |
+| **Local Test** | Docker    | `docker run`           | Non (rebuild)       |
+| **Production** | HF Spaces | Aucune (automatique)   | Oui (a chaque push) |
+
 
 ## Authentification
 

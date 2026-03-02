@@ -8,12 +8,14 @@ Ce document décrit les **performances** des modèles ML déployés et les **pro
 
 ### Métriques
 
-Les deux modèles ont été entraînés sur le dataset [Seattle Building Energy Benchmarking 2016](https://data.seattle.gov/dataset/2016-Building-Energy-Benchmarking/2bpz-gwpy), avec une validation par **cross-validation** (R² rapporté).
+Les deux modèles ont été entraînés sur le dataset Seattle Building Energy Benchmarking 2016, avec une validation par **cross-validation** (R² rapporté).
 
-| Modèle | Cible | Algorithme | R² (CV) | Unité |
-|--------|--------|------------|---------|--------|
-| **Énergie** | `SiteEnergyUse(kBtu)` | Random Forest (optimisé) | **0,73** | kBtu |
-| **CO2** | `TotalGHGEmissions` | LightGBM (optimisé) | **0,92** | tonnes CO2 |
+
+| Modèle      | Cible                 | Algorithme               | R² (CV)  | Unité      |
+| ----------- | --------------------- | ------------------------ | -------- | ---------- |
+| **Énergie** | `SiteEnergyUse(kBtu)` | Random Forest (optimisé) | **0,73** | kBtu       |
+| **CO2**     | `TotalGHGEmissions`   | LightGBM (optimisé)      | **0,92** | tonnes CO2 |
+
 
 - **Modèle énergie** : prédit la consommation énergétique totale du bâtiment. R² ≈ 0,73 indique une bonne capacité explicative avec une marge d’erreur acceptable pour un usage POC / aide à la décision.
 - **Modèle CO2** : prédit les émissions de GES (tonnes CO2). R² ≈ 0,92 indique une très bonne précision ; le modèle utilise en entrée la consommation énergétique (réelle ou prédite) ainsi que les caractéristiques du bâtiment.
