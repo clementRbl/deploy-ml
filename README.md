@@ -1,3 +1,13 @@
+---
+title: Deploy ML - Energy & CO2 Prediction
+emoji: "🏢"
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Deploy ML - Prediction Energetique et CO2 des Batiments
 
 [Python](https://python.org)
