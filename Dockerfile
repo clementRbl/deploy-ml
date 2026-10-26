@@ -43,4 +43,5 @@ ENV API_HOST=0.0.0.0
 ENV API_PORT=7860
 
 # Run the application
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# --no-server-header: ne pas exposer la bannière "server: uvicorn"
+CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "7860", "--no-server-header"]

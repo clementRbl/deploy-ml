@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from src.core.config import Settings, get_settings
 from src.db.database import get_db
 from src.db.models import Base
 from src.services.predictor import get_predictor
@@ -34,9 +35,13 @@ def db_session():
         engine.dispose()
 
 
+# Cle d'API des tests : les endpoints /db/* l'exigent dans l'en-tete X-API-Key
+TEST_API_KEY = "cle-de-test"
+
+
 @pytest.fixture
 def client():
-    """Client de test FastAPI avec DB SQLite en memoire."""
+    """Client de test FastAPI avec DB SQLite en memoire et cle d'API valide."""
     from src.api.main import app
 
     engine = create_engine(
@@ -55,8 +60,9 @@ def client():
             session.close()
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_settings] = lambda: Settings(api_key=TEST_API_KEY)
 
-    with TestClient(app) as c:
+    with TestClient(app, headers={"X-API-Key": TEST_API_KEY}) as c:
         c._test_session_factory = test_session_factory
         yield c
 
