@@ -222,6 +222,29 @@ class TestModelsEndpoint:
             assert "target" in model
 
 
+class TestDatabaseEndpointsAuth:
+    """Les endpoints /db/* exposent la base : ils exigent la cle d'API."""
+
+    def test_sans_cle_est_refuse(self, client):
+        """Un appel sans cle recoit 401."""
+        response = client.get("/api/v1/db/buildings", headers={"X-API-Key": ""})
+        assert response.status_code == 401
+
+    def test_mauvaise_cle_est_refusee(self, client):
+        """Une cle inconnue recoit 401."""
+        response = client.get("/api/v1/db/buildings", headers={"X-API-Key": "mauvaise"})
+        assert response.status_code == 401
+
+    def test_sans_cle_configuree_les_endpoints_sont_desactives(self, client):
+        """Sans API_KEY sur le serveur, les endpoints /db/* repondent 503."""
+        from src.api.main import app
+        from src.core.config import Settings, get_settings
+
+        app.dependency_overrides[get_settings] = lambda: Settings(api_key=None)
+        response = client.get("/api/v1/db/buildings")
+        assert response.status_code == 503
+
+
 class TestDatabaseEndpoints:
     """Tests pour les endpoints /db/."""
 

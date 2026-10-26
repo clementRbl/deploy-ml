@@ -14,10 +14,17 @@ class Settings(BaseSettings):
 
     # Environment
     environment: str = "development"
-    debug: bool = True
+    debug: bool = False  # sécurité: jamais True par défaut (échoue à échouer en prod)
 
-    # CORS
-    cors_origins: list[str] = ["*"]
+    # CORS — restreint aux origines du portfolio (surchargeable via env)
+    cors_origins: list[str] = [
+        "https://clement-reboul.fr",
+        "https://clementrbl.github.io",
+    ]
+
+    # Sécurité: clé d'API protégeant les endpoints /db/* (données en base).
+    # Non définie => les endpoints /db/* renvoient 503 (désactivés).
+    api_key: str | None = None
 
     # Paths
     models_dir: Path = Path(__file__).parent.parent / "models"

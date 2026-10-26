@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from src.api.dependencies import require_api_key
 from src.api.v1.endpoints import database, health, models, predictions
 
 # Router principal V1
@@ -9,4 +10,5 @@ api_router = APIRouter()
 api_router.include_router(health.router)
 api_router.include_router(predictions.router)
 api_router.include_router(models.router)
-api_router.include_router(database.router)
+# Endpoints exposant des données en base: protégés par clé d'API (X-API-Key)
+api_router.include_router(database.router, dependencies=[Depends(require_api_key)])
